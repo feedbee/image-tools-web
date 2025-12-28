@@ -64,7 +64,9 @@ function App() {
       const croppedImageSrc = await getCroppedImg(
         imageSrc,
         croppedAreaPixels,
-        rotation
+        rotation,
+        { horizontal: false, vertical: false },
+        format
       )
 
       if (!croppedImageSrc) return

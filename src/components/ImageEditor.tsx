@@ -41,7 +41,7 @@ export function ImageEditor({
                     onZoomChange={onZoomChange}
                     onRotationChange={onRotationChange}
                     classes={{
-                        containerClassName: "bg-zinc-950/50"
+                        containerClassName: "bg-zinc-950/50 checkerboard"
                     }}
                 />
             </div>
