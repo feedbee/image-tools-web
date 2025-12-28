@@ -6,8 +6,11 @@ import { ImageEditor } from './components/ImageEditor'
 import { ResizeControls } from './components/ResizeControls'
 import { AspectRatioControls } from './components/AspectRatioControls'
 import { ConfirmDialog } from './components/ConfirmDialog'
+import { Loader } from './components/Loader'
 import getCroppedImg, { resizeImage, createImage } from './utils/imageUtils'
 
+
+const MAX_DIMENSION = 10000
 
 function App() {
   const [imageSrc, setImageSrc] = useState<string | null>(null)
@@ -26,6 +29,7 @@ function App() {
 
   // UI State
   const [showCloseConfirm, setShowCloseConfirm] = useState(false)
+  const [isProcessing, setIsProcessing] = useState(false)
 
   const onFileSelect = async (file: File) => {
     setFilename(file.name.replace(/\.[^/.]+$/, ""))
@@ -59,6 +63,7 @@ function App() {
   const handleDownload = async (format: 'image/jpeg' | 'image/png') => {
     if (!imageSrc || !croppedAreaPixels) return
 
+    setIsProcessing(true)
     try {
       // 1. Get the cropped image (at full resolution of the crop)
       const croppedImageSrc = await getCroppedImg(
@@ -89,6 +94,8 @@ function App() {
 
     } catch (e) {
       console.error(e)
+    } finally {
+      setIsProcessing(false)
     }
   }
 
@@ -128,6 +135,16 @@ function App() {
       // Image is taller than target (or equal). Fit width, reduce height.
       newW = origW
       newH = Math.round(origW / targetRatio)
+    }
+
+    // Ensure we don't exceed MAX_DIMENSION while maintaining ratio
+    if (newW > MAX_DIMENSION) {
+      newW = MAX_DIMENSION
+      newH = Math.round(newW / targetRatio)
+    }
+    if (newH > MAX_DIMENSION) {
+      newH = MAX_DIMENSION
+      newW = Math.round(newH * targetRatio)
     }
 
     setWidth(newW)
@@ -243,6 +260,7 @@ function App() {
         onConfirm={handleConfirmClose}
         onCancel={() => setShowCloseConfirm(false)}
       />
+      {isProcessing && <Loader />}
     </div>
   )
 }

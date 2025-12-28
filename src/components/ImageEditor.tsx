@@ -40,6 +40,9 @@ export function ImageEditor({
                     onCropComplete={onCropComplete}
                     onZoomChange={onZoomChange}
                     onRotationChange={onRotationChange}
+                    restrictPosition={false}
+                    minZoom={0.1}
+                    maxZoom={10}
                     classes={{
                         containerClassName: "bg-zinc-950/50 checkerboard"
                     }}
@@ -57,8 +60,8 @@ export function ImageEditor({
                         <input
                             type="range"
                             value={zoom}
-                            min={1}
-                            max={3}
+                            min={0.1}
+                            max={10}
                             step={0.1}
                             aria-labelledby="Zoom"
                             onChange={(e) => onZoomChange(Number(e.target.value))}

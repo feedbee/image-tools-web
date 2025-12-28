@@ -9,6 +9,8 @@ interface ResizeControlsProps {
     disabled?: boolean
 }
 
+const MAX_DIMENSION = 10000
+
 export function ResizeControls({ width, height, onChange, disabled }: ResizeControlsProps) {
     const [aspectRatio, setAspectRatio] = useState<number | null>(width / height)
     const [locked, setLocked] = useState(true)
@@ -20,21 +22,31 @@ export function ResizeControls({ width, height, onChange, disabled }: ResizeCont
     }, [width, height, locked]) // Add relevant dependencies
 
     const handleWidthChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const newWidth = Math.max(1, parseInt(e.target.value) || 0)
+        let newWidth = Math.min(MAX_DIMENSION, Math.max(1, parseInt(e.target.value) || 0))
+        let newHeight = height
+
         if (locked && aspectRatio) {
-            onChange(newWidth, Math.round(newWidth / aspectRatio))
-        } else {
-            onChange(newWidth, height)
+            newHeight = Math.round(newWidth / aspectRatio)
+            if (newHeight > MAX_DIMENSION) {
+                newHeight = MAX_DIMENSION
+                newWidth = Math.round(newHeight * aspectRatio)
+            }
         }
+        onChange(newWidth, newHeight)
     }
 
     const handleHeightChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const newHeight = Math.max(1, parseInt(e.target.value) || 0)
+        let newHeight = Math.min(MAX_DIMENSION, Math.max(1, parseInt(e.target.value) || 0))
+        let newWidth = width
+
         if (locked && aspectRatio) {
-            onChange(Math.round(newHeight * aspectRatio), newHeight)
-        } else {
-            onChange(width, newHeight)
+            newWidth = Math.round(newHeight * aspectRatio)
+            if (newWidth > MAX_DIMENSION) {
+                newWidth = MAX_DIMENSION
+                newHeight = Math.round(newWidth / aspectRatio)
+            }
         }
+        onChange(newWidth, newHeight)
     }
 
     const toggleLock = () => {
